@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Binergy - Biogas Monitoring App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eco-green': '#10B981',
+                        'eco-blue': '#0EA5E9',
+                        'eco-dark': '#065F46',
+                        'eco-light': '#ECFDF5'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10B981 0%, #0EA5E9 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+        }
+        .progress-circle {
+            transform: rotate(-90deg);
+        }
+        .chart-line {
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: drawLine 2s ease-in-out forwards;
+        }
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .notification-slide {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Mobile Container -->
+    <div class="max-w-sm mx-auto bg-white min-h-screen relative overflow-hidden">
+        
+        <!-- Screen 1: Dashboard -->
+        <div id="dashboard" class="screen active">
+            <!-- Header -->
+            <div class="gradient-bg text-white p-6 pb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                            🌱
+                        </div>
+                        <h1 class="text-xl font-bold">Mini-Binergy</h1>
+                    </div>
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        ⚙️
+                    </div>
+                </div>
+                <p class="text-white text-opacity-90 text-sm">Eco-friendly biogas monitoring</p>
+            </div>
+
+            <!-- Biogas Production Circle -->
+            <div class="px-6 -mt-6 mb-6">
+                <div class="bg-white rounded-2xl p-6 card-shadow">
+                    <h3 class="text-gray-700 font-semibold mb-4 flex items-center">
+                        🔥 Biogas Production Today
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <div class="relative w-32 h-32">
+                            <svg class="w-32 h-32 progress-circle" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="50" stroke="#E5E7EB" stroke-width="8" fill="none"/>
+                                <circle cx="60" cy="60" r="50" stroke="#10B981" stroke-width="8" fill="none" 
+                                        stroke-dasharray="314" stroke-dashoffset="94" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <span class="text-2xl font-bold text-eco-green">72%</span>
+                                <span class="text-xs text-gray-500">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="px-6 space-y-4 mb-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white rounded-xl p-4 card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl">🌡️</span>
+                            <span class="text-xs text-eco-green bg-eco-light px-2 py-1 rounded-full">Normal</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-800">38°C</p>
+                        <p class="text-xs text-gray-500">Temperature</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 card-shadow">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl">💧</span>
+                            <span class="text-xs text-eco-blue bg-blue-50 px-2 py-1 rounded-full">Good</span>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-800">6.8</p>
+                        <p class="text-xs text-gray-500">pH Value</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 card-shadow">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-2xl">⚡</span>
+                        <span class="text-xs text-eco-green bg-eco-light px-2 py-1 rounded-full">Producing</span>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800">24.5 L</p>
+                    <p class="text-xs text-gray-500">Gas Volume Today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Alerts -->
+        <div id="alerts" class="screen hidden">
+            <div class="gradient-bg text-white p-6">
+                <h1 class="text-xl font-bold flex items-center">
+                    🔔 Alerts & Notifications
+                </h1>
+                <p class="text-white text-opacity-90 text-sm mt-1">System status updates</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="bg-white rounded-xl p-4 card-shadow notification-slide border-l-4 border-eco-green">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center text-white text-sm">
+                            ✓
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">Biogas Production Active</h4>
+                            <p class="text-sm text-gray-600 mt-1">System is producing biogas efficiently</p>
+                            <p class="text-xs text-gray-400 mt-2">2 minutes ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 card-shadow notification-slide border-l-4 border-yellow-400">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white text-sm">
+                            ⚠️
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">Low Temperature Detected</h4>
+                            <p class="text-sm text-gray-600 mt-1">Temperature dropped to 32°C</p>
+                            <p class="text-xs text-gray-400 mt-2">15 minutes ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 card-shadow notification-slide border-l-4 border-red-400">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-red-400 rounded-full flex items-center justify-center text-white text-sm">
+                            ⚠️
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">pH Out of Range</h4>
+                            <p class="text-sm text-gray-600 mt-1">pH level at 5.2 - needs attention</p>
+                            <p class="text-xs text-gray-400 mt-2">1 hour ago</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 card-shadow notification-slide border-l-4 border-eco-blue">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-eco-blue rounded-full flex items-center justify-center text-white text-sm">
+                            ℹ️
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">Daily Report Ready</h4>
+                            <p class="text-sm text-gray-600 mt-1">Yesterday's production summary available</p>
+                            <p class="text-xs text-gray-400 mt-2">3 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Analytics -->
+        <div id="analytics" class="screen hidden">
+            <div class="gradient-bg text-white p-6">
+                <h1 class="text-xl font-bold flex items-center">
+                    📊 Analytics
+                </h1>
+                <p class="text-white text-opacity-90 text-sm mt-1">Production insights</p>
+            </div>
+
+            <div class="p-6">
+                <!-- Tabs -->
+                <div class="flex bg-gray-100 rounded-lg p-1 mb-6">
+                    <button class="tab-btn flex-1 py-2 px-4 rounded-md text-sm font-medium bg-white text-eco-green shadow-sm">Daily</button>
+                    <button class="tab-btn flex-1 py-2 px-4 rounded-md text-sm font-medium text-gray-600">Weekly</button>
+                    <button class="tab-btn flex-1 py-2 px-4 rounded-md text-sm font-medium text-gray-600">Monthly</button>
+                </div>
+
+                <!-- Gas Production Chart -->
+                <div class="bg-white rounded-xl p-4 card-shadow mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        ⚡ Gas Production (L)
+                    </h3>
+                    <div class="h-32 relative">
+                        <svg class="w-full h-full" viewBox="0 0 300 120">
+                            <defs>
+                                <linearGradient id="gasGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#10B981;stop-opacity:0.3" />
+                                    <stop offset="100%" style="stop-color:#10B981;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <polyline fill="none" stroke="#10B981" stroke-width="3" 
+                                      points="20,80 60,60 100,70 140,45 180,55 220,35 260,40" 
+                                      class="chart-line"/>
+                            <polygon fill="url(#gasGradient)" 
+                                     points="20,80 60,60 100,70 140,45 180,55 220,35 260,40 260,100 20,100"/>
+                        </svg>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>6AM</span>
+                        <span>12PM</span>
+                        <span>6PM</span>
+                    </div>
+                </div>
+
+                <!-- pH & Temperature Chart -->
+                <div class="bg-white rounded-xl p-4 card-shadow">
+                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        🌡️💧 pH & Temperature Trends
+                    </h3>
+                    <div class="h-32 relative">
+                        <svg class="w-full h-full" viewBox="0 0 300 120">
+                            <polyline fill="none" stroke="#0EA5E9" stroke-width="2" 
+                                      points="20,70 60,65 100,68 140,72 180,69 220,71 260,67"/>
+                            <polyline fill="none" stroke="#F59E0B" stroke-width="2" 
+                                      points="20,50 60,48 100,52 140,49 180,51 220,47 260,50"/>
+                        </svg>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-eco-blue rounded-full"></div>
+                                <span class="text-xs text-gray-600">pH</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <span class="text-xs text-gray-600">Temp</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Control -->
+        <div id="control" class="screen hidden">
+            <div class="gradient-bg text-white p-6">
+                <h1 class="text-xl font-bold flex items-center">
+                    🎛️ Control Panel
+                </h1>
+                <p class="text-white text-opacity-90 text-sm mt-1">Manage your biogas system</p>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Action Buttons -->
+                <div class="space-y-4">
+                    <button class="w-full bg-white rounded-xl p-6 card-shadow flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-eco-green bg-opacity-10 rounded-full flex items-center justify-center">
+                                📝
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-semibold text-gray-800">Add Waste Log</h3>
+                                <p class="text-sm text-gray-600">Record new organic waste input</p>
+                            </div>
+                        </div>
+                        <div class="text-eco-green">→</div>
+                    </button>
+
+                    <button class="w-full bg-white rounded-xl p-6 card-shadow flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-eco-blue bg-opacity-10 rounded-full flex items-center justify-center">
+                                🚰
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-semibold text-gray-800">Drain Fertilizer</h3>
+                                <p class="text-sm text-gray-600">Extract liquid fertilizer output</p>
+                            </div>
+                        </div>
+                        <div class="text-eco-blue">→</div>
+                    </button>
+                </div>
+
+                <!-- Auto Monitoring Toggle -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                🤖
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Auto Monitoring</h3>
+                                <p class="text-sm text-gray-600">Automatic system monitoring</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <input type="checkbox" id="autoToggle" class="sr-only" checked>
+                            <label for="autoToggle" class="block w-14 h-8 bg-eco-green rounded-full cursor-pointer relative">
+                                <span class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform transform translate-x-6"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="bg-eco-light rounded-xl p-6 border border-eco-green border-opacity-20">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-3 h-3 bg-eco-green rounded-full animate-pulse"></div>
+                        <h3 class="font-semibold text-eco-dark">System Status: Active</h3>
+                    </div>
+                    <p class="text-sm text-eco-dark opacity-80">All systems running normally. Next maintenance in 7 days.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-200">
+            <div class="flex">
+                <button onclick="showScreen('dashboard')" class="nav-btn flex-1 py-3 px-4 text-center">
+                    <div class="text-xl mb-1">🏠</div>
+                    <div class="text-xs text-eco-green font-medium">Dashboard</div>
+                </button>
+                <button onclick="showScreen('alerts')" class="nav-btn flex-1 py-3 px-4 text-center">
+                    <div class="text-xl mb-1">🔔</div>
+                    <div class="text-xs text-gray-500">Alerts</div>
+                </button>
+                <button onclick="showScreen('analytics')" class="nav-btn flex-1 py-3 px-4 text-center">
+                    <div class="text-xl mb-1">📊</div>
+                    <div class="text-xs text-gray-500">Analytics</div>
+                </button>
+                <button onclick="showScreen('control')" class="nav-btn flex-1 py-3 px-4 text-center">
+                    <div class="text-xl mb-1">🎛️</div>
+                    <div class="text-xs text-gray-500">Control</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenName).classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const text = btn.querySelector('.text-xs');
+                text.classList.remove('text-eco-green', 'font-medium');
+                text.classList.add('text-gray-500');
+            });
+            
+            // Highlight active nav
+            event.target.closest('.nav-btn').querySelector('.text-xs').classList.remove('text-gray-500');
+            event.target.closest('.nav-btn').querySelector('.text-xs').classList.add('text-eco-green', 'font-medium');
+        }
+
+        // Tab switching for analytics
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('bg-white', 'text-eco-green', 'shadow-sm');
+                    b.classList.add('text-gray-600');
+                });
+                this.classList.add('bg-white', 'text-eco-green', 'shadow-sm');
+                this.classList.remove('text-gray-600');
+            });
+        });
+
+        // Toggle switch functionality
+        document.getElementById('autoToggle').addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            const slider = label.querySelector('span');
+            
+            if (this.checked) {
+                label.classList.add('bg-eco-green');
+                label.classList.remove('bg-gray-300');
+                slider.classList.add('translate-x-6');
+                slider.classList.remove('translate-x-0');
+            } else {
+                label.classList.remove('bg-eco-green');
+                label.classList.add('bg-gray-300');
+                slider.classList.remove('translate-x-6');
+                slider.classList.add('translate-x-0');
+            }
+        });
+
+        // Control panel button interactions
+        document.querySelectorAll('#control button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent.includes('Add Waste Log')) {
+                    alert('📝 Waste log entry form would open here!');
+                } else if (this.textContent.includes('Drain Fertilizer')) {
+                    alert('🚰 Fertilizer drainage process would start here!');
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97b6ec96828b9bae',t:'MTc1NzI1NTYzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
